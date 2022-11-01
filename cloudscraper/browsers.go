@@ -9,13 +9,13 @@ import (
 	"time"
 )
 
-type BrowserDescription struct {
-	UserAgents UserAgents                   `json:"user_agents"`
+type browserDescription struct {
+	UserAgents userAgents                   `json:"user_agents"`
 	Ja3        map[string]string            `json:"ja3"`
 	Headers    map[string]map[string]string `json:"headers"`
 }
 
-type UserAgents struct {
+type userAgents struct {
 	// os -> browser - [user-agents]
 	Desktop map[string]map[string][]string `json:"desktop"`
 	Mobile  map[string]map[string][]string `json:"mobile"`
@@ -27,7 +27,7 @@ type BrowserConf struct {
 	Headers   map[string]string
 }
 
-func readJsonFile() (BrowserDescription, error) {
+func readJsonFile() (browserDescription, error) {
 	// Open our jsonFile
 	jsonFile, err := os.Open("ressources/browsers.json")
 	// if we os.Open returns an error then handle it
@@ -36,7 +36,7 @@ func readJsonFile() (BrowserDescription, error) {
 	}
 	fmt.Println("Successfully Opened users.json")
 	byteValue, _ := io.ReadAll(jsonFile)
-	var browsers BrowserDescription
+	var browsers browserDescription
 	err = json.Unmarshal(byteValue, &browsers)
 	// defer the closing of our jsonFile so that we can parse it later on
 	defer jsonFile.Close()
