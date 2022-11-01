@@ -42,9 +42,12 @@ func (cs CloudScrapper) Post(url string, headers map[string]string, body string)
 	return cs.Do(url, options, "POST")
 }
 
-func Init(mobile bool) *CloudScrapper {
-	browserConf, _ := GetUserAgents(mobile)
+func Init(mobile bool) (*CloudScrapper, error) {
+	browserConf, err := getUserAgents(mobile)
+	if err != nil {
+		return nil, err
+	}
 	cycleTstClient := cycletls.Init()
 	p := CloudScrapper{client: cycleTstClient, defaultHeader: browserConf.Headers, ja3: browserConf.Ja3, userAgent: browserConf.UserAgent}
-	return &p
+	return &p, nil
 }

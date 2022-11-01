@@ -1,11 +1,9 @@
 package cloudscraper
 
 import (
+	_ "embed"
 	"encoding/json"
-	"fmt"
-	"io"
 	"math/rand"
-	"os"
 	"time"
 )
 
@@ -27,23 +25,18 @@ type BrowserConf struct {
 	Headers   map[string]string
 }
 
+//go:embed resources/browsers.json
+var browsersJson string
+
 func readJsonFile() (browserDescription, error) {
 	// Open our jsonFile
-	jsonFile, err := os.Open("ressources/browsers.json")
-	// if we os.Open returns an error then handle it
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Successfully Opened users.json")
-	byteValue, _ := io.ReadAll(jsonFile)
 	var browsers browserDescription
-	err = json.Unmarshal(byteValue, &browsers)
+	err := json.Unmarshal([]byte(browsersJson), &browsers)
 	// defer the closing of our jsonFile so that we can parse it later on
-	defer jsonFile.Close()
 	return browsers, err
 }
 
-func GetUserAgents(mobile bool) (BrowserConf, error) {
+func getUserAgents(mobile bool) (BrowserConf, error) {
 	rand.Seed(time.Now().UnixNano())
 	var userAgents map[string]map[string][]string
 	browsersDescription, err := readJsonFile()
