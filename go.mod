@@ -1,4 +1,4 @@
-module github.com/RomainMichau/cloud_scraper_go
+module github.com/RomainMichau/cloudscraper_go
 
 go 1.19
 
