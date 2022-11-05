@@ -63,12 +63,12 @@ func (cs CloudScrapper) RespChan() chan cycletls.Response {
 	return cs.respChan
 }
 
-func Init(mobile bool) (*CloudScrapper, error) {
+func Init(mobile bool, workers bool) (*CloudScrapper, error) {
 	browserConf, err := getUserAgents(mobile)
 	if err != nil {
 		return nil, err
 	}
-	cycleTstClient := cycletls.Init()
+	cycleTstClient := cycletls.Init(workers)
 	p := CloudScrapper{client: cycleTstClient, defaultHeader: browserConf.Headers, ja3: browserConf.Ja3, userAgent: browserConf.UserAgent,
 		respChan: cycleTstClient.RespChan}
 	return &p, nil
