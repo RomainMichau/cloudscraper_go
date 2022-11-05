@@ -6,7 +6,7 @@ import (
 
 type CloudScrapper struct {
 	client        cycletls.CycleTLS
-	respChan      *chan cycletls.Response
+	respChan      chan cycletls.Response
 	defaultHeader map[string]string
 	ja3           string
 	userAgent     string
@@ -59,7 +59,7 @@ func (cs CloudScrapper) Post(url string, headers map[string]string, body string)
 	return cs.Do(url, options, "POST")
 }
 
-func (cs CloudScrapper) RespChan() *chan cycletls.Response {
+func (cs CloudScrapper) RespChan() chan cycletls.Response {
 	return cs.respChan
 }
 
@@ -70,6 +70,6 @@ func Init(mobile bool) (*CloudScrapper, error) {
 	}
 	cycleTstClient := cycletls.Init()
 	p := CloudScrapper{client: cycleTstClient, defaultHeader: browserConf.Headers, ja3: browserConf.Ja3, userAgent: browserConf.UserAgent,
-		respChan: &cycleTstClient.RespChan}
+		respChan: cycleTstClient.RespChan}
 	return &p, nil
 }
