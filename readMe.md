@@ -10,7 +10,7 @@ Rely on [CycleTls](https://github.com/Danny-Dasilva/CycleTLS) to customize JA3
 JA3 list:
 https://raw.githubusercontent.com/trisulnsm/trisul-scripts/master/lua/frontend_scripts/reassembly/ja3/prints/ja3fingerprint.json
 
-Find my JA3: https://kawayiyi.com/tls
+Get my JA3: https://kawayiyi.com/tls
 # Example of usage
 ## Simple Post
 ```go
