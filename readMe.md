@@ -1,7 +1,6 @@
 # CloudScraper Go
 
 Simple go module to bypass CloudFlare securities
-
 For now only passive checks based on TLS footprint (JA3) and user agents are handled  
 Inspired of python project https://github.com/venomous/cloudscraper
 
