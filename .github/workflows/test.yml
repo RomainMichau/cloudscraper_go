@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
-        run: go get .
+        run: go get ./...
       - name: Build
         run: go build -v ./...
       - name: Test with the Go CLI
