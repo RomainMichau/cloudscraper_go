@@ -1,7 +1,7 @@
 package cloudscraper
 
 import (
-	"github.com/Danny-Dasilva/CycleTLS/cycletls"
+	"github.com/RomainMichau/CycleTLS/cycletls"
 )
 
 type CloudScrapper struct {
