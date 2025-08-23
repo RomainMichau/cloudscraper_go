@@ -1,6 +1,6 @@
 module github.com/RomainMichau/cloudscraper_go
 
-go 1.24
+go 1.19
 
 require github.com/RomainMichau/CycleTLS/cycletls v1.0.30-compatible
 
