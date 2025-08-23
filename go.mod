@@ -2,7 +2,7 @@ module github.com/RomainMichau/cloudscraper_go
 
 go 1.24.0
 
-toolchain go1.24.6
+toolchain go1.20.6
 
 require github.com/RomainMichau/CycleTLS/cycletls v1.0.30-compatible
 
