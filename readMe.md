@@ -22,7 +22,7 @@ import (
 
 func main() {
 
-	client, _ := cloudscraper.Init(false, false)
+	client, _ := cloudscraper.Init(cloudscraper.Chrome, false)
 	res, _ := client.Post("https://www.facebook.com/anything/", make(map[string]string), "")
 	res2, _ := client.Get("https://www.facebook.com/anything/", make(map[string]string), "")
 	print(res.Body)
@@ -40,7 +40,7 @@ import (
 
 func main() {
 
-	client, _ := cloudscraper.Init(false, false)
+	client, _ := cloudscraper.Init(cloudscraper.Chrome, false)
 	options := cycletls.Options{
 		Headers:         map[string]string{"my_custom_header": "header_value"},
 		Body:            "",
@@ -63,7 +63,7 @@ import (
 
 func main() {
 
-	client, _ := cloudscraper.Init(false, true)
+	client, _ := cloudscraper.Init(cloudscraper.Chrome, true)
 	options := cycletls.Options{
 		Headers:         map[string]string{"my_custom_header": "header_value"},
 		Body:            "",

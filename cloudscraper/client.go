@@ -63,8 +63,12 @@ func (cs CloudScrapper) RespChan() chan cycletls.Response {
 	return cs.respChan
 }
 
-func Init(mobile bool, workers bool) (*CloudScrapper, error) {
-	browserConf, err := getUserAgents(mobile)
+func Init(device Device, workers bool) (*CloudScrapper, error) {
+	err := fetchJA3()
+	if err != nil {
+		return nil, err
+	}
+	browserConf, err := getUserAgents(device)
 	if err != nil {
 		return nil, err
 	}
