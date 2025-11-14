@@ -1,22 +1,23 @@
 package cloudscraper
 
 import (
+	"bytes"
+	"crypto/rand"
 	_ "embed"
 	"encoding/json"
-	"math/rand"
+	"errors"
+	"math/big"
+	"net/http"
+	"strings"
 	"time"
+
+	browser "github.com/EDDYCJY/fake-useragent"
 )
 
-type browserDescription struct {
-	UserAgents userAgents                   `json:"user_agents"`
-	Ja3        map[string]string            `json:"ja3"`
-	Headers    map[string]map[string]string `json:"headers"`
-}
+const JA3_FINGERPRINT_URL = "https://raw.githubusercontent.com/trisulnsm/trisul-scripts/master/lua/frontend_scripts/reassembly/ja3/prints/ja3fingerprint.json"
 
-type userAgents struct {
-	// os -> browser - [user-agents]
-	Desktop map[string]map[string][]string `json:"desktop"`
-	Mobile  map[string]map[string][]string `json:"mobile"`
+type browserDescription struct {
+	Headers map[string]map[string]string `json:"headers"`
 }
 
 type BrowserConf struct {
@@ -36,33 +37,106 @@ func readJsonFile() (browserDescription, error) {
 	return browsers, err
 }
 
-func getUserAgents(mobile bool) (BrowserConf, error) {
-	rand.Seed(time.Now().UnixNano())
-	var userAgents map[string]map[string][]string
+type Device string
+
+const (
+	Chrome  Device = "chrome"
+	Firefox Device = "firefox"
+	Safari  Device = "safari"
+	Mobile  Device = "mobile"
+	Default Device = "default"
+)
+
+func getUserAgents(device Device) (BrowserConf, error) {
+	var randUA string
+
+	switch device {
+	case Chrome:
+		randUA = browser.Chrome()
+	case Firefox:
+		randUA = browser.Firefox()
+	case Safari:
+		randUA = browser.Safari()
+	case Mobile:
+		randUA = browser.Mobile()
+	default:
+		randUA = browser.Random()
+	}
+
 	browsersDescription, err := readJsonFile()
 	if err != nil {
 		return BrowserConf{}, err
 	}
-	if mobile {
-		userAgents = browsersDescription.UserAgents.Mobile
-	} else {
-		userAgents = browsersDescription.UserAgents.Desktop
+
+	ja3, err := pickJA3(device)
+	if err != nil {
+		return BrowserConf{}, err
 	}
-	var osList []string
-	for k := range userAgents {
-		osList = append(osList, k)
+
+	return BrowserConf{UserAgent: randUA, Ja3: ja3, Headers: browsersDescription.Headers[string(device)]}, nil
+}
+
+// fetched from url
+var recourseJA3 string
+
+func fetchJA3() error {
+	cl := &http.Client{
+		Timeout: time.Duration(10 * time.Second),
 	}
-	rnd := rand.Intn(len(osList))
-	pickedOs := userAgents[osList[rnd]]
-	var browserList []string
-	for k := range pickedOs {
-		browserList = append(browserList, k)
+	resp, err := cl.Get(JA3_FINGERPRINT_URL)
+	if err != nil {
+		return err
 	}
-	rnd = rand.Intn(len(browserList))
-	browserName := browserList[rnd]
-	pickedBrowser := pickedOs[browserName]
-	rnd = rand.Intn(len(pickedBrowser))
-	pickedUserAgent := pickedBrowser[rnd]
-	ja3 := browsersDescription.Ja3[browserName]
-	return BrowserConf{UserAgent: pickedUserAgent, Ja3: ja3, Headers: browsersDescription.Headers[browserName]}, nil
+	defer resp.Body.Close()
+
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(resp.Body)
+	recourseJA3 = buf.String()
+	return nil
+}
+
+var ja3Map = map[Device][]string{
+	Chrome:  {"Chrome", "Chromium"},
+	Firefox: {"Firefox"},
+	Safari:  {"Safari"},
+	Mobile:  {"Android", "iOS"},
+	Default: {"Chrome", "Safari", "Firefox"},
+}
+
+func pickJA3(device Device) (string, error) {
+	lines := strings.Split(recourseJA3, "\n")
+
+	var ja3Candidates []string
+
+	for _, line := range lines {
+		if !strings.HasPrefix(line, "{") {
+			continue
+		}
+
+		var ja3 struct {
+			Desc string `json:"desc"`
+			Str  string `json:"ja3_str"`
+		}
+		if err := json.Unmarshal([]byte(line), &ja3); err != nil {
+			continue
+		}
+
+		for _, kw := range ja3Map[device] {
+			if strings.Contains(strings.ToLower(ja3.Desc), strings.ToLower(kw)) {
+				ja3Candidates = append(ja3Candidates, ja3.Str)
+			}
+		}
+	}
+
+	if len(ja3Candidates) == 0 {
+		return "", errors.New("no ja3 match for device")
+	}
+
+	return ja3Candidates[rInt(len(ja3Candidates))], nil
+}
+
+// better random
+func rInt(max int) int {
+	n, _ := rand.Int(rand.Reader, big.NewInt(int64(max)))
+	return int(n.Int64())
 }
