@@ -12,6 +12,16 @@ type CloudScrapper struct {
 	userAgent     string
 }
 
+func (cs CloudScrapper) ExportSettings() map[string]string {
+	settings := make(map[string]string)
+	settings["ja3"] = cs.ja3
+	settings["userAgent"] = cs.userAgent
+	for k, v := range cs.defaultHeader {
+		settings[k] = v
+	}
+	return settings
+}
+
 func (cs CloudScrapper) Do(url string, options cycletls.Options, method string) (cycletls.Response, error) {
 	for k, v := range cs.defaultHeader {
 		options.Headers[k] = v
