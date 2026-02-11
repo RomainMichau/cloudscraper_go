@@ -55,8 +55,10 @@ func getUserAgents(mobile bool) (BrowserConf, error) {
 	rnd := rand.Intn(len(osList))
 	pickedOs := userAgents[osList[rnd]]
 	var browserList []string
-	for k := range pickedOs {
-		browserList = append(browserList, k)
+	for k, v := range pickedOs {
+		if len(v) > 0 {
+			browserList = append(browserList, k)
+		}
 	}
 	rnd = rand.Intn(len(browserList))
 	browserName := browserList[rnd]
